@@ -1,0 +1,37 @@
+This project restarts some applications that bugs on linux resume, like dropbox and empathy.  It's works with pm-utils resume event. Applications to be restarted can be configurated with a json file.
+
+
+How To Configurate:
+
+Example: 
+{
+    "dropbox" : {
+        "cmdline" : "/home/fenrrir/.dropbox-dist/dropbox"
+    },
+    "empathy" : {
+        "cmdline" : "empathy",
+        "subprocesses" : [
+            "/usr/lib/empathy/empathy-auth-client",
+            "/usr/lib/telepathy/mission-control-5",
+            "/usr/lib/telepathy/telepathy-logger",
+            "/usr/bin/python /usr/lib/telepathy/telepathy-butterfly",
+            "/usr/lib/telepathy/telepathy-gabble",
+            "/usr/lib/telepathy/telepathy-salut"
+        ]
+    }
+}
+
+The configuration file is a json object that specifies application name and your command line. Also, is possible specify subprocesses from application to be stopped before restart. Put the configuration file at your home with the name of ".perfectresume.conf".  
+
+How to Install:
+
+Copy exemple.conf to $HOME/.perfectresume.conf
+Copy notifier.py at /usr/lib/pm-utils/sleep.d/
+Add service.py to your gnome session
+
+
+Dependencies:
+
+Python 2.6
+pm-utils
+python-psutil 0.2.1
