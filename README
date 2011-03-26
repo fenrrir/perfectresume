@@ -26,7 +26,7 @@ The configuration file is a json object that specifies application's name and it
 How to Install:
 
 Copy example.conf to $HOME/.perfectresume.conf
-Copy notifier.py to /usr/lib/pm-utils/sleep.d/
+Copy notifier.py to /etc/pm/sleep.d/
 Add service.py to start in gnome session
 
 
