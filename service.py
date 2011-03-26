@@ -23,16 +23,16 @@
 
 import os
 import sys
+import json
 import signal
 import socket
 import psutil
 import logging
 import subprocess
-import simplejson
 import SocketServer
 
 
-
+DEFAULT_CONF="/usr/lib/perfectresume/default.conf"
 SOCKET_FILE="/tmp/.perfectresume"
 LOG_FILE = SOCKET_FILE + ".log"
 MAGIC_NUMBER = '42'
@@ -86,6 +86,24 @@ class RestartableProcess(object):
         self.start()
 
 
+    if psutil.__version__ == "0.1.3": #ubuntu maverick
+
+
+        def kill(self):
+            try:
+                logging.info('sending SIGKILL signal')
+                self.process.kill(signal.SIGKILL)
+            except psutil.NoSuchProcess, error:
+                pass
+
+
+        def terminate(self):
+            logging.info('sending SIGTERM signal')
+            self.process.kill(signal.SIGTERM)
+
+
+
+
 
 
 class Service(object):
@@ -98,23 +116,39 @@ class Service(object):
                 return RestartableProcess(process)
 
 
-    def get_user_conf(self):
-        filename = os.path.join(os.environ['HOME'], ".perfectresume.conf")
+    
+    def _read_conf(self, filename):
         try:
+            logging.info('reading ' + filename)
             with file(filename) as f:
-                user_conf = simplejson.load(f)
-                return user_conf
+                return json.load(f)
         except IOError, error:
             msg = "configuration file not fount at " + filename
             logging.error(msg)
-            print msg
             return {}
+
+
+    def get_user_conf(self):
+        filename = os.path.join(os.environ['HOME'], ".perfectresume.conf")
+        return self._read_conf(filename)
+
+
+    def get_default_conf(self):
+        return self._read_conf(DEFAULT_CONF)
+
+
+    def get_conf(self):
+        conf = self.get_user_conf()
+        if not conf:
+            conf = self.get_default_conf()
+        return conf
+
 
 
     def run(self):
 
         os.setsid() #detach childs
-        for program, conf in self.get_user_conf().items():
+        for program, conf in self.get_conf().items():
             logging.info('trying get pid of ' + conf['cmdline'] ) 
             process = self.get_process(conf['cmdline'])
             if process:
@@ -152,7 +186,8 @@ class UnixHandler(SocketServer.BaseRequestHandler):
 
 
 
-class ForkingUnixStreamServer( SocketServer.ForkingMixIn, SocketServer.UnixStreamServer  ):
+class ForkingUnixStreamServer( SocketServer.ForkingMixIn, 
+                               SocketServer.UnixStreamServer  ):
     pass
 
 

@@ -34,4 +34,4 @@ Dependencies:
 
 Python 2.6
 pm-utils
-python-psutil 0.2.1
+python-psutil > 0.1.3
