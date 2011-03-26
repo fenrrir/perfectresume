@@ -33,7 +33,7 @@ logging.basicConfig(filename=LOG_FILE,level=logging.DEBUG,
 
 def main():
     logging.info("params " + " ".join(sys.argv))
-    if sys.argv[1] == "resume":
+    if sys.argv[1] == "resume" or sys.argv[1] == "thaw":
         logging.info("sending message")
         try:
             s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
